@@ -11,13 +11,26 @@ class Validator
     private $precheck = null;
     private $valid = null;
 
+    /**
+     * Validator constructor.
+     *
+     * @param string $name  field cannonical `name`
+     * @param mixed $value  field possible holder like $_POST['name']
+     * @param null $default value if nothing present
+     */
     public function __construct($name, &$value, $default=null)
     {
         $this->name = $name;
         $this->value = (string)( $value ) ?? $default;
     }
 
-    public static function then(Validator $precheck): Validator
+    /**
+     * Validator constructor. allows you to run validator chains
+     *
+     * @param Validator $precheck   Chain item before
+     * @return Validator            new validator instance
+     */
+    public static function after(Validator $precheck): Validator
     {
         $value = $precheck->getValue();
         $return = new Validator($precheck->getName(), $value);
@@ -25,6 +38,12 @@ class Validator
         return $return;
     }
 
+    /**
+     * Checks required field
+     *
+     * @param string|null $message
+     * @return $this
+     */
     public function required(?string $message=null)
     {
         $this->emptyMessage($message, "This field cannot be empty");
@@ -32,6 +51,14 @@ class Validator
         return $this;
     }
 
+    /**
+     * Check is value equals some other   like : ... $_POST['csrf'] ... ->equals($_SESSION['csrf'])
+     *
+     * @param mixed $value
+     * @param string|null $message
+     * @param bool $strict
+     * @return $this
+     */
     public function equal($value, ?string $message=null, bool $strict=true)
     {
         $this->emptyMessage($message, "This field must be equal $value");
@@ -39,6 +66,14 @@ class Validator
         return $this;
     }
 
+    /**
+     * Check is value equals some other validator value, like password == password_repeat
+     *
+     * @param Validator $with
+     * @param string|null $message
+     * @param bool $strict
+     * @return $this
+     */
     public function compare(Validator $with, ?string $message=null, bool $strict=true)
     {
         $this->emptyMessage($message, "This field must be same with $with->name");
@@ -46,6 +81,12 @@ class Validator
         return $this;
     }
 
+    /**
+     * Checks is checkbox checked?
+     *
+     * @param string|null $message
+     * @return $this
+     */
     public function checked(?string $message=null)
     {
         $this->emptyMessage($message, "Must be checked");
@@ -53,6 +94,14 @@ class Validator
         return $this;
     }
 
+    /**
+     * Custom validation rule
+     *
+     * @param callable      $callback        validation ( function($value): bool {} )
+     * @param string|null   $message
+     * @param mixed         ...$params
+     * @return $this
+     */
     public function custom(callable $callback, ?string $message=null, ...$params)
     {
         $this->emptyMessage($message, "Not bypass custom rule");
@@ -60,6 +109,13 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validates string for minimum chars
+     *
+     * @param int $len
+     * @param string|null $message
+     * @return $this
+     */
     public function minimumLength(int $len, ?string $message = null)
     {
         $this->emptyMessage($message, "Must be at last $len characters long");
@@ -67,6 +123,13 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validate string for maximum chars
+     *
+     * @param int $len
+     * @param string|null $message
+     * @return $this
+     */
     public function maximumLength(int $len, ?string $message=null)
     {
         $this->emptyMessage($message, "Must be at most $len characters long");
@@ -74,6 +137,12 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validate string for /^[a-z]?%/i
+     *
+     * @param string|null $message
+     * @return $this
+     */
     public function alpha(?string $message=null)
     {
         $this->emptyMessage($message, "Only alphabetic characters allowed");
@@ -81,6 +150,12 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validate string for valid email address
+     *
+     * @param string|null $message
+     * @return $this
+     */
     public function validMail(?string $message=null)
     {
         $this->emptyMessage($message, "Must be an valid email address");
@@ -88,6 +163,12 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validates numbers and floats
+     *
+     * @param string|null $message
+     * @return $this
+     */
     public function isNumber(?string $message=null)
     {
         $this->emptyMessage($message, "Must be an number");
@@ -95,6 +176,12 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validates numbers and float for positive value   1..MAX_INT
+     *
+     * @param string|null $message
+     * @return $this
+     */
     public function isPositiveNumber(?string $message=null)
     {
         $this->emptyMessage($message, "Must be an positive number");
@@ -102,6 +189,13 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validates numbers and floats for value not less than
+     *
+     * @param int $min
+     * @param string|null $message
+     * @return $this
+     */
     public function minimumInt(int $min, ?string $message = null)
     {
         $this->emptyMessage($message, "Must be greater or equal $min");
@@ -109,6 +203,13 @@ class Validator
         return $this;
     }
 
+    /**
+     * Validates numbers and floats for value not greater than
+     *
+     * @param int $max
+     * @param string|null $message
+     * @return $this
+     */
     public function maximumInt(int $max, ?string $message = null)
     {
         $this->emptyMessage($message, "Must be less or equal $max");
@@ -116,6 +217,11 @@ class Validator
         return $this;
     }
 
+    /**
+     * Main validation function
+     *
+     * @return bool
+     */
     public function validate(): bool
     {
         $this->errors = [];
@@ -252,36 +358,42 @@ class Validator
     }
 
 
-    /*
-    const IS_NOT_FLOAT  = 0x4002; // todo : represent this
-    const IS_FLOAT      = 0x4003; // todo : represent this
-
-
-    const IS_DATE       = 0x5051; // todo : represent this DD-MM-YYYY
-    const IS_TIME       = 0x5052; // todo : represent this HH:MM
-    const IS_LONGTIME   = 0x5053; // todo : represent this HH:MM:SS
-    const IS_DATETIME   = 0x5054; // todo : represent this DD-MM-YYYY HH:mm
-    const IS_LONGDATE   = 0x5055; // todo : represent this DD-MM-YYYY HH:mm:ss
-    */
-
-
-
-
+    /**
+     * Returns error list
+     *
+     * @return array
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
+    /**
+     * Returns name given in constructor
+     *
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * returns value
+     *
+     * @return string|null
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * Little helper for message null check
+     *
+     * @param $message
+     * @param $set
+     */
     private function emptyMessage(&$message, $set)
     {
         if ($message === null) {

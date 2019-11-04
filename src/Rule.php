@@ -33,6 +33,13 @@ class Rule extends stdClass
     public $type;
     public $message;
 
+    /**
+     * Rule constructor.
+     *
+     * @param int $type             Rule type constant
+     * @param string $message       Message given when rule fails
+     * @param array|null $params    Other parameters for specific rules
+     */
     function __construct(int $type, string $message, ?array $params=null)
     {
         $this->type = $type;
@@ -44,11 +51,21 @@ class Rule extends stdClass
         }
     }
 
+    /**
+     * Rule type
+     *
+     * @return int
+     */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * Rule message
+     *
+     * @return string
+     */
     public function getMessage()
     {
         return $this->message;
