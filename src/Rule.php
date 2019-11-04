@@ -17,11 +17,18 @@ class Rule extends stdClass
     const ALPHA         = 0x2003;
     const MAIL_REGEX    = 0x2010;
     const NUMERIC       = 0x4000;
-    const POSITIVE_INT  = 0x4001;
-    const IS_NOT_FLOAT  = 0x4002; // todo : represent this
-    const IS_FLOAT      = 0x4003; // todo : represent this
-    const MIN_INT       = 0x4005;
-    const MAX_INT       = 0x4006;
+    const INTEGER       = 0x4001;
+    const FLOAT         = 0x4002;
+
+    const POSITIVE_INT  = 0x4005;
+    const POSITIVE_FLOAT= 0x4006;
+
+    const INTEGER_RANGE = 0x4010;
+    const INTEGER_MIN   = 0x4011;
+    const INTEGER_MAX   = 0x4012;
+
+
+
 
     const IS_DATE       = 0x5051; // todo : represent this DD-MM-YYYY
     const IS_TIME       = 0x5052; // todo : represent this HH:MM

@@ -164,28 +164,82 @@ class Validator
     }
 
     /**
-     * Validates numbers and floats
+     * Validates value for valid integer or float
      *
      * @param string|null $message
      * @return $this
      */
-    public function isNumber(?string $message=null)
+    public function isNumeric(?string $message=null)
     {
-        $this->emptyMessage($message, "Must be an number");
+        $this->emptyMessage($message, "Must be an number or float");
         $this->rules[] = new Rule(Rule::NUMERIC, $message);
         return $this;
     }
 
     /**
-     * Validates numbers and float for positive value   1..MAX_INT
+     * Validates value for valid integer
      *
      * @param string|null $message
      * @return $this
      */
-    public function isPositiveNumber(?string $message=null)
+    public function isInt(?string $message=null)
     {
-        $this->emptyMessage($message, "Must be an positive number");
+        $this->emptyMessage($message, "Must be an number");
+        $this->rules[] = new Rule(Rule::INTEGER, $message);
+        return $this;
+    }
+
+    /**
+     * Validates value for valid float
+     *
+     * @param string|null $message
+     * @return $this
+     */
+    public function isFloat(?string $message=null)
+    {
+        $this->emptyMessage($message, "Must be an floating number");
+        $this->rules[] = new Rule(Rule::FLOAT, $message);
+        return $this;
+    }
+
+    /**
+     * Validates value for positive value   1..MAX_INT
+     *
+     * @param string|null $message
+     * @return $this
+     */
+    public function isPositiveInteger(?string $message=null)
+    {
+        $this->emptyMessage($message, 'Must be an positive number');
         $this->rules[] = new Rule(Rule::POSITIVE_INT, $message);
+        return $this;
+    }
+
+    /**
+     * Validates value for positive floating value > 0
+     *
+     * @param string|null $message
+     * @return $this
+     */
+    public function isPositiveFloat(?string $message=null)
+    {
+        $this->emptyMessage($message, 'Must be positive float');
+        $this->rules[] = new Rule(Rule::POSITIVE_FLOAT, $message);
+        return $this;
+    }
+
+    /**
+     * Validates is value between specific range
+     *
+     * @param int $min
+     * @param int $max
+     * @param string|null $message
+     * @return $this
+     */
+    public function rangeInt(int $min, int $max, ?string $message=null)
+    {
+        $this->emptyMessage($message, "Must be in range between $min and $max");
+        $this->rules[] = new Rule(Rule::INTEGER_RANGE, $message, ['min' => $min, 'max' => $max]);
         return $this;
     }
 
@@ -199,7 +253,7 @@ class Validator
     public function minimumInt(int $min, ?string $message = null)
     {
         $this->emptyMessage($message, "Must be greater or equal $min");
-        $this->rules[] = new Rule(Rule::MIN_INT, $message, ['min' => $min]);
+        $this->rules[] = new Rule(Rule::INTEGER_MIN, $message, ['min' => $min]);
         return $this;
     }
 
@@ -213,7 +267,7 @@ class Validator
     public function maximumInt(int $max, ?string $message = null)
     {
         $this->emptyMessage($message, "Must be less or equal $max");
-        $this->rules[] = new Rule(Rule::MAX_INT, $message, ['max' => $max]);
+        $this->rules[] = new Rule(Rule::INTEGER_MAX, $message, ['max' => $max]);
         return $this;
     }
 
@@ -314,37 +368,62 @@ class Validator
                     break;
 
                 case Rule::NUMERIC:
-                    if (filter_var($this->value, FILTER_VALIDATE_INT) === false) {
+                    if ( ! is_numeric($this->value)) {
+                        $error($rule);
+                    }
+                    break;
+
+                case Rule::INTEGER:
+                    if ( filter_var($this->value, FILTER_VALIDATE_INT) === false ) {
+                        $error($rule);
+                    }
+                    break;
+
+                case Rule::FLOAT:
+                    if ( filter_var($this->value, FILTER_VALIDATE_FLOAT) === false ) {
                         $error($rule);
                     }
                     break;
 
                 case Rule::POSITIVE_INT:
-                    if ( ! filter_var($this->value, FILTER_VALIDATE_INT, ["options" => ["min_range" => 0]])) {
+                    if ((int) $this->value != $this->value || $this->value < 1) {
                         $error($rule);
                     }
                     break;
 
-                case Rule::MIN_INT:
-                    if ( ! filter_var($this->value, FILTER_VALIDATE_INT, ["options" => ["min_range" => $rule->min]])) {
+                case Rule::POSITIVE_FLOAT:
+                    if ( ! ((float) $this->value == $this->value && $this->value > 0)) {
                         $error($rule);
                     }
                     break;
 
-                case Rule::MAX_INT:
-                    if ( ! filter_var($this->value, FILTER_VALIDATE_INT, ["options" => ["max_range" => $rule->max]])) {
+                case Rule::INTEGER_RANGE: // [min , max]
+                    $options = [ "min_range" => $rule->min, "max_range" => $rule->max ];
+                    if ( filter_var($this->value, FILTER_VALIDATE_INT, ["options" => $options]) === false ) {
                         $error($rule);
                     }
                     break;
 
-                case Rule::IS_NOT_FLOAT:
-                case Rule::IS_FLOAT:
+                case Rule::INTEGER_MIN: // [min]
+                    $options = [ "min_range" => $rule->min ];
+                    if ( filter_var($this->value, FILTER_VALIDATE_INT, ["options" => $options]) === false ) {
+                        $error($rule);
+                    }
+                    break;
+
+                case Rule::INTEGER_MAX: // [max]
+                    $options = [ "max_range" => $rule->max ];
+                    if ( filter_var($this->value, FILTER_VALIDATE_INT, ["options" => $options]) === false ) {
+                        $error($rule);
+                    }
+                    break;
+
                 case Rule::IS_DATE:
                 case Rule::IS_TIME:
                 case Rule::IS_LONGTIME:
                 case Rule::IS_DATETIME:
                 case Rule::IS_LONGDATE:
-                    $error(new Rule(0, 'Sorry rule validator for 0x' . dechex($rule->type)) . ' not yet implemented');
+                    $error(new Rule(0, 'Sorry rule not yet implemented'));
                     break;
 
                 default:

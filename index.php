@@ -10,7 +10,7 @@ $db = new class {
 };
 
 $_POST['username'] = 'Somik';
-
+$_POST['age'] = '19';
 
 $username = (new Validator('username', $_POST['username']))
     ->required('Обязательное поле')
@@ -55,10 +55,17 @@ $email2 = Validator::after($email)
         return $exists < 1;
     }, 'Такой Email уже использован ранеее');
 
+$age = (new Validator('age', $_POST['age']))
+    ->isInt('Должно быть цифрой')
+    ->minimumInt(18, 'Вам должно быть 18 лет');
+
+$age2 = Validator::after($age)
+    ->maximumInt(110, 'Вы слишком старый что-бы посещать этот сайт');
+
 $eula = (new Validator('eula', $_POST['rules']))
     ->checked('Укажите что вы обязуетесь соблюдать правила');
 
-$valid = new GroupValidator($username2, $password, $passagain, $email2, $eula);
+$valid = new GroupValidator($username2, $password, $passagain, $email2, $age2, $eula);
 
 // header('Content-Type: text/plain; charset=UTF-8');
 echo "<pre>" . print_r($valid,1) . "</pre>";
