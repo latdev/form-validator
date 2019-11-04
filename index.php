@@ -3,7 +3,13 @@ require_once(__DIR__ . '/vendor/autoload.php');
 
 use Latdev\Validation\{ Validator , GroupValidator };
 
+/**
+ * DB Class Dummy
+ */
 $db = new class {
+    /**
+     * SQL Dummy
+     */
     function Scalar($sql, ...$arg) {
         return 0;
     }
@@ -11,6 +17,7 @@ $db = new class {
 
 $_POST['username'] = 'Somik';
 $_POST['age'] = '19';
+if (rand(0, 1) == 0) $_POST['eula'] = 'on';
 
 $username = (new Validator('username', $_POST['username']))
     ->required('Обязательное поле')
@@ -56,16 +63,22 @@ $email2 = Validator::after($email)
     }, 'Такой Email уже использован ранеее');
 
 $age = (new Validator('age', $_POST['age']))
-    ->isInt('Должно быть цифрой')
-    ->minimumInt(18, 'Вам должно быть 18 лет');
+    ->isInt('Должно быть цифрой');
 
 $age2 = Validator::after($age)
+    ->minimumInt(18, 'Вам должно быть 18 лет');
+
+$age3 = Validator::after($age2)
     ->maximumInt(110, 'Вы слишком старый что-бы посещать этот сайт');
 
-$eula = (new Validator('eula', $_POST['rules']))
+$eula = (new Validator('eula', $_POST['eula']))
     ->checked('Укажите что вы обязуетесь соблюдать правила');
 
-$valid = new GroupValidator($username2, $password, $passagain, $email2, $age2, $eula);
+$test_for_range = (new Validator('range_test', $_POST['set']))
+    ->required()
+    ->rangeInt(20, 40);
+
+$valid = new GroupValidator($username2, $password, $passagain, $email2, $age3, $eula , $test_for_range);
 
 // header('Content-Type: text/plain; charset=UTF-8');
 echo "<pre>" . print_r($valid,1) . "</pre>";
