@@ -1,14 +1,13 @@
 {
     "name": "latdev/form-validator",
-    "description": "Easly validates forms",
+    "description": "Easly validates PHP forms",
+    "keywords": "validation",
     "type": "library",
-    "license": "Free",
-    "authors": [
-        {
-            "name": "Chugreev Eugene",
-            "email": "eugene.latdev@gmail.com"
-        }
-    ],
+    "license": "MIT",
+    "authors": [{
+        "name": "Chugreev Eugene",
+        "email": "eugene.latdev@gmail.com"
+    }],
     "autoload": {
         "psr-4": {
             "Latdev\\Validation\\": "src/"
