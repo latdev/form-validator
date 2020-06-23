@@ -14,5 +14,6 @@
             "Latdev\\Validation\\": "src/"
         }
     },
+    "minimum-stability": "stable",
     "require": {}
 }
