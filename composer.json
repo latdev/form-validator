@@ -1,7 +1,7 @@
 {
     "name": "latdev/form-validator",
     "description": "Easly validates PHP forms",
-    "keywords": "validation",
+    "keywords": ["forms", "validation"],
     "type": "library",
     "license": "MIT",
     "authors": [{
